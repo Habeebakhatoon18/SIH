@@ -43,6 +43,8 @@ export const GovernmentDashboard: React.FC = () => {
   const [populationData, setPopulationData] = useState<any>(null);
   const [emergencyRequests, setEmergencyRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
 
   const t = (key: any) => getTranslation(key, user?.language || 'en');
 
@@ -158,6 +160,87 @@ export const GovernmentDashboard: React.FC = () => {
       console.error('Emergency approval failed:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateReport = async () => {
+    try {
+      setReportSuccess(false);
+      setGeneratingReport(true);
+
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      // Prepare CSV sections from available mock data
+      const lines: string[] = [];
+
+      // Section: Summary Metrics
+      lines.push('Section,Metric,Value');
+      lines.push(`Summary,Registered Migrants,12847`);
+      lines.push(`Summary,Health Records,45231`);
+      const pendingEmergencies = emergencyRequests.filter(r => r.status === 'pending').length;
+      lines.push(`Summary,Pending Emergency Requests,${pendingEmergencies}`);
+
+      // Section: Health Trends (if available)
+      if (healthTrends?.labels && Array.isArray(healthTrends.datasets)) {
+        lines.push('');
+        lines.push('Health Trends');
+        lines.push(['Month', ...healthTrends.datasets.map((d: any) => d.label)].join(','));
+        healthTrends.labels.forEach((label: string, idx: number) => {
+          const row = [label, ...healthTrends.datasets.map((d: any) => d.data[idx])];
+          lines.push(row.join(','));
+        });
+      }
+
+      // Section: Population Risk Distribution (if available)
+      if (populationData?.labels && populationData.datasets?.[0]?.data) {
+        lines.push('');
+        lines.push('Population Risk Distribution');
+        lines.push('Risk Level,Percent');
+        populationData.labels.forEach((label: string, idx: number) => {
+          const value = populationData.datasets[0].data[idx];
+          lines.push(`${label},${value}`);
+        });
+      }
+
+      // Section: Emergency Requests
+      if (emergencyRequests.length > 0) {
+        lines.push('');
+        lines.push('Emergency Requests');
+        lines.push('ID,Reason,Location,Timestamp,Status,Urgency');
+        emergencyRequests.forEach(req => {
+          const ts = new Date(req.timestamp).toISOString();
+          const clean = (s: string) => String(s).replaceAll(',', ';');
+          lines.push([
+            clean(req.id),
+            clean(req.reason),
+            clean(req.location),
+            ts,
+            clean(req.status),
+            clean(req.urgency)
+          ].join(','));
+        });
+      }
+
+      const csvContent = lines.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      a.href = url;
+      a.download = `health-report-${dateStr}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setReportSuccess(true);
+      setTimeout(() => setReportSuccess(false), 3000);
+    } catch (e) {
+      console.error('Failed to generate report', e);
+      alert('Failed to generate report. Please try again.');
+    } finally {
+      setGeneratingReport(false);
     }
   };
 
@@ -502,15 +585,28 @@ export const GovernmentDashboard: React.FC = () => {
           </div>
         )}
         {activeTab === 'reports' && (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
-            <ClockIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Reports</h3>
-            <p className="text-gray-600 mb-6">
-              Generate comprehensive health reports and data exports
-            </p>
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-              Generate Report
-            </button>
+          <div className="space-y-4">
+            {reportSuccess && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="text-sm text-green-800">Report generated and downloaded successfully.</div>
+              </div>
+            )}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+              <ClockIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Reports</h3>
+              <p className="text-gray-600 mb-6">
+                Generate comprehensive health reports and data exports
+              </p>
+              <button
+                onClick={generateReport}
+                disabled={generatingReport}
+                className={`px-6 py-3 rounded-lg transition-colors text-white ${
+                  generatingReport ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {generatingReport ? 'Generating…' : 'Generate Report'}
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -24,6 +24,8 @@ export const DoctorDashboard: React.FC = () => {
   const [consentRequests, setConsentRequests] = useState<ConsentRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [requestingConsent, setRequestingConsent] = useState<string | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const t = (key: any) => getTranslation(key, user?.language || 'en');
 
@@ -101,9 +103,13 @@ export const DoctorDashboard: React.FC = () => {
   };
 
   const requestPatientConsent = async (patientId: string, recordIds: string[], purpose: string) => {
+    setRequestingConsent(patientId);
     setLoading(true);
     
     try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       // Create consent contract on blockchain
       const contractAddress = await blockchainService.createConsentContract(
         patientId, 
@@ -124,10 +130,17 @@ export const DoctorDashboard: React.FC = () => {
       };
 
       setConsentRequests(prev => [newRequest, ...prev]);
+      
+      // Show success message
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+      
     } catch (error) {
       console.error('Failed to request consent:', error);
+      alert('Failed to send consent request. Please try again.');
     } finally {
       setLoading(false);
+      setRequestingConsent(null);
     }
   };
 
@@ -285,13 +298,21 @@ export const DoctorDashboard: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">{patient.conditions.join(', ')}</p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      patient.riskLevel === 'high' ? 'bg-red-100 text-red-800' :
-                      patient.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {patient.riskLevel} risk
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        patient.riskLevel === 'high' ? 'bg-red-100 text-red-800' :
+                        patient.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {patient.riskLevel} risk
+                      </span>
+                      {consentRequests.some(r => r.patientId === patient.id && r.status === 'pending') && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <ClockIcon className="h-3 w-3 mr-1" />
+                          Pending
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -312,6 +333,27 @@ export const DoctorDashboard: React.FC = () => {
 
     return (
       <div className="space-y-6">
+        {/* Success Message */}
+        {showSuccessMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">
+                  Consent request sent successfully!
+                </h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>The patient will receive a notification to approve your access request. You'll be notified once they respond.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
         <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
           <div className="relative">
@@ -375,9 +417,26 @@ export const DoctorDashboard: React.FC = () => {
                     </div>
                     <button
                       onClick={() => requestPatientConsent(patient.id, ['all'], 'Regular consultation')}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      disabled={requestingConsent === patient.id || loading}
+                      className={`px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 ${
+                        requestingConsent === patient.id || loading
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
                     >
-                      Request Access
+                      {requestingConsent === patient.id ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Sending Request...</span>
+                        </>
+                      ) : consentRequests.some(r => r.patientId === patient.id && r.status === 'pending') ? (
+                        <>
+                          <ClockIcon className="h-4 w-4" />
+                          <span>Request Sent</span>
+                        </>
+                      ) : (
+                        'Request Access'
+                      )}
                     </button>
                   </div>
                 </div>
