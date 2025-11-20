@@ -59,7 +59,7 @@ export function WelfareSchemes() {
       >
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('welfare')}</h1>
-          <p className="text-gray-600">Kerala government welfare schemes and benefits</p>
+          <p className="text-gray-600">state government welfare schemes and benefits</p>
         </div>
         <motion.button
           onClick={() => setShowApplicationForm(true)}

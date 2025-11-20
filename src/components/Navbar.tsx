@@ -34,7 +34,7 @@ export const Navbar: React.FC = () => {
                 <HeartIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">HealthChain Kerala</h1>
+                <h1 className="text-xl font-bold text-gray-900">Medfolio</h1>
                 <p className="text-xs text-gray-500">Decentralized Health Records</p>
               </div>
             </div>
