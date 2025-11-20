@@ -43,7 +43,7 @@ export const DoctorDashboard: React.FC = () => {
         lastVisit: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         riskLevel: 'medium',
         conditions: ['Hypertension', 'Diabetes Type 2'],
-        location: 'Kochi, Kerala'
+        location: 'Hyderabad ,Telangana'
       },
       {
         id: '2',
@@ -63,7 +63,7 @@ export const DoctorDashboard: React.FC = () => {
         lastVisit: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         riskLevel: 'high',
         conditions: ['Chronic Kidney Disease', 'Hypertension'],
-        location: 'Kozhikode, Kerala'
+        location: 'Mumbai, Maharashtra'
       }
     ];
 

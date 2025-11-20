@@ -1,4 +1,5 @@
-import { MedicalRecord, WelfareScheme, User } from '../contexts/MedicalContext';
+import { MedicalRecord, WelfareScheme } from '../contexts/MedicalContext';
+import { User } from '../types';
 
 // Mock blockchain service
 export class BlockchainService {
@@ -70,7 +71,7 @@ export const mockWelfareSchemes: WelfareScheme[] = [
   },
   {
     id: '3',
-    name: 'Kerala State Health Scheme',
+    name: ' State Health Scheme',
     description: 'Comprehensive health coverage',
     eligible: false,
     benefits: ['Outpatient coverage', 'Emergency care', 'Specialist consultations'],
@@ -94,19 +95,22 @@ export class AuthService {
     if (otp === '123456') {
       return {
         id: '1',
-        name: 'Priya Nair',
-        role: 'patient',
-        aadhaar: '1234-5678-9012',
-        phone: '+91-9876543210',
-        email: 'priya.nair@email.com',
-        avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=150&h=150&fit=crop&crop=face'
+           name: 'Priya Nair',
+             role: 'doctor',
+     language: 'ml',
+           aadhaar: '1234-5678-9012',
+           phone: '+91-9876543210',
+           email: 'priya.nair@email.com',
+           //avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=150&h=150&fit=crop&crop=face',
+           walletAddress: `0x${Math.random().toString(16).substr(2, 40)}`,
+           createdAt: new Date().toISOString()
       };
     }
     
     return null;
   }
   
-  static async biometricAuth(fingerprintData: string): Promise<boolean> {
+  static async biometricAuth(_fingerprintData: string): Promise<boolean> {
     console.log('Processing biometric authentication...');
     await new Promise(resolve => setTimeout(resolve, 2000));
     return Math.random() > 0.2; // 80% success rate

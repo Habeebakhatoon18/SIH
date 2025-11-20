@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Heart, 
@@ -8,8 +8,7 @@ import {
   XCircle,
   IndianRupee,
   FileText,
-  Calendar,
-  Users,
+
   TrendingUp,
   AlertCircle,
   Phone,
@@ -45,7 +44,7 @@ export function WelfareSchemes() {
   
   const eligibilityChecks = [
     { criteria: 'BPL Family', status: true, description: 'Below Poverty Line certification required' },
-    { criteria: 'Kerala Resident', status: true, description: 'Domicile certificate for 3+ years' },
+    { criteria: 'Indian Resident', status: true, description: 'Domicile certificate for 3+ years' },
     { criteria: 'Aadhaar Linked', status: true, description: 'Valid Aadhaar card linked to bank account' },
     { criteria: 'Income Criteria', status: true, description: 'Annual family income below ₹1,20,000' }
   ];

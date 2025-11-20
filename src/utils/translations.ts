@@ -3,6 +3,10 @@ export const translations = {
     // Common
     welcome: 'Welcome',
     dashboard: 'Dashboard',
+  welfare: 'Welfare',
+  offline: 'Offline',
+  online: 'Online',
+  sync: 'Sync',
     profile: 'Profile',
     settings: 'Settings',
     logout: 'Logout',
@@ -66,6 +70,10 @@ export const translations = {
     // Malayalam translations
     welcome: 'സ്വാഗതം',
     dashboard: 'ഡാഷ്‌ബോർഡ്',
+  welfare: 'ക്ഷാമോത്സാഹം',
+  offline: 'ഓഫ്‌ലൈനിന്‍',
+  online: 'ഓൺലൈനിന്‍',
+  sync: 'സിങ്ക്',
     profile: 'പ്രൊഫൈൽ',
     settings: 'ക്രമീകരണങ്ങൾ',
     logout: 'ലോഗ്ഔട്ട്',
@@ -121,6 +129,10 @@ export const translations = {
   hi: {
     welcome: 'स्वागत है',
     dashboard: 'डैशबोर्ड',
+  welfare: 'कल्याण',
+  offline: 'ऑफ़लाइन',
+  online: 'ऑनलाइन',
+  sync: 'सिंक',
     profile: 'प्रोफाइल',
     settings: 'सेटिंग्स',
     logout: 'लॉगआउट',
@@ -176,6 +188,10 @@ export const translations = {
   ta: {
     welcome: 'வரவேற்கிறோம்',
     dashboard: 'டாஷ்போர்டு',
+  welfare: 'நன்மைகள்',
+  offline: 'ஆஃப்லைன்',
+  online: 'ஆன்லைன்',
+  sync: 'இணைப்பு',
     profile: 'சுயவிவரம்',
     settings: 'அமைப்புகள்',
     logout: 'வெளியேறு',
@@ -230,9 +246,21 @@ export const translations = {
   }
 };
 
+import { useMemo } from 'react';
+
 export type Language = keyof typeof translations;
 export type TranslationKey = keyof typeof translations.en;
 
 export const getTranslation = (key: TranslationKey, language: Language): string => {
   return translations[language][key] || translations.en[key] || key;
+};
+
+// Helper: return a translator function bound to a language
+export const getTranslator = (language: Language) => (key: TranslationKey) =>
+  getTranslation(key, language);
+
+// React hook variant to be used in components: useTranslation(language)
+// Returns a memoized translator function bound to the specified language.
+export const useTranslation = (language: Language) => {
+  return useMemo(() => getTranslator(language), [language]);
 };

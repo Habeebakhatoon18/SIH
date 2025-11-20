@@ -59,9 +59,13 @@ const mockUsers: User[] = [
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const login = async (email: string, password: string, role: string) => {
+  const login = async (email: string, _password: string, role: string) => {
     // Mock authentication
-    const foundUser = mockUsers.find(u => u.email === email && u.role === role);
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedRole = role.trim().toLowerCase();
+    const foundUser = mockUsers.find(
+      u => u.email.trim().toLowerCase() === normalizedEmail && u.role.toLowerCase() === normalizedRole
+    );
     if (foundUser) {
       setUser(foundUser);
     } else {

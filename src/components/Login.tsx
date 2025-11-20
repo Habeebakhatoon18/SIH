@@ -39,15 +39,25 @@ export const Login: React.FC = () => {
 
     try {
       if (isLogin) {
-        await login(formData.email, formData.password, formData.role);
+        // normalize inputs to avoid failing matches due to whitespace/casing
+        await login(formData.email.trim().toLowerCase(), formData.password, formData.role.trim());
       } else {
         if (formData.password !== formData.confirmPassword) {
           throw new Error('Passwords do not match');
         }
-        await register({
-          ...formData,
-          language
-        });
+        // Map formData fields to the User shape expected by register
+        const userPayload = {
+          role: formData.role,
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phoneNumber,
+          language,
+          aadhaar: formData.aadhaarNumber,
+          medicalLicense: formData.medicalLicense,
+          organizationId: formData.organizationId
+        };
+
+        await register(userPayload as any);
       }
     } catch (err: any) {
       setError(err.message);
@@ -78,7 +88,7 @@ export const Login: React.FC = () => {
           <div className="mx-auto bg-gradient-to-r from-blue-600 to-teal-600 p-3 rounded-full w-20 h-20 flex items-center justify-center">
             <HeartIcon className="h-10 w-10 text-white" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">HealthChain Kerala</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Medfolio </h2>
           <p className="mt-2 text-sm text-gray-600">
             {isLogin ? t('welcome') : t('register')} - Decentralized Health Records
           </p>

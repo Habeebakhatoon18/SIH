@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { 
   Globe, 
@@ -11,12 +11,12 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
-import { useTranslation } from '../../utils/translations';
+import { getTranslator, Language } from '../../utils/translations';
 import { offlineSyncManager } from '../../utils/offlineSync';
 
 export function Header() {
   const { state, dispatch } = useAppContext();
-  const t = useTranslation(state.language);
+  const t = getTranslator(state.language as Language);
   
   const handleLanguageChange = (lang: any) => {
     dispatch({ type: 'SET_LANGUAGE', payload: lang });
@@ -59,7 +59,7 @@ export function Header() {
               <span className="text-white font-bold text-lg">K</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Kerala Health</h1>
+              <h1 className="text-xl font-bold text-gray-900">Medfolio</h1>
               <p className="text-sm text-gray-500">Digital Healthcare Platform</p>
             </div>
           </motion.div>
